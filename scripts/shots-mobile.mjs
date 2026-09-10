@@ -1,0 +1,17 @@
+import { chromium } from 'playwright'
+
+const browser = await chromium.launch()
+const page = await browser.newPage({ viewport: { width: 375, height: 800 } })
+await page.goto('http://localhost:5174', { waitUntil: 'load' })
+await page.waitForSelector('.loader', { state: 'detached', timeout: 10000 })
+await page.evaluate(() => document.getElementById('people').scrollIntoView())
+await page.waitForTimeout(1200)
+await page.screenshot({ path: 'scripts/shots/mobile-people.png' })
+await page.evaluate(() => document.getElementById('process').scrollIntoView())
+await page.waitForTimeout(1200)
+await page.screenshot({ path: 'scripts/shots/mobile-process.png' })
+await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
+await page.waitForTimeout(1200)
+await page.screenshot({ path: 'scripts/shots/mobile-footer.png' })
+await browser.close()
+console.log('done')

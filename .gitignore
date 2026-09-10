@@ -1,0 +1,14 @@
+node_modules
+dist
+dist-ssr
+*.local
+.env
+.env.*
+!.env.example
+
+# Local dev artifacts
+scripts/shots/
+
+# Unused media kept locally; the hero uses the CSS ripple background
+src/assets/hero-law.mp4
+src/assets/higuruma-retrial.webm
