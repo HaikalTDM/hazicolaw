@@ -6,6 +6,7 @@ import People from './components/Partners.jsx'
 import FAQ from './components/FAQ.jsx'
 import Contact from './components/Contact.jsx'
 import Footer from './components/Footer.jsx'
+import PreviewBadge from './components/PreviewBadge.jsx'
 import { useReducedMotion } from './hooks/useReducedMotion.js'
 
 function useBodyLock(locked) {
@@ -391,6 +392,7 @@ export default function App() {
         <Contact />
       </main>
       <Footer />
+      {loaderDone && <PreviewBadge />}
     </>
   )
 }

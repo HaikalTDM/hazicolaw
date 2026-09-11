@@ -1896,6 +1896,84 @@ section:focus {
   transform: translateY(0);
 }
 
+/* ---------- Preview badge ---------- */
+
+.preview {
+  position: fixed;
+  left: 1.25rem;
+  bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
+  z-index: 45;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  max-width: calc(100vw - 2.5rem);
+}
+
+/* Solid walnut rather than glass. The badge has to read over both the
+   white sections and the walnut field, and the header already carries
+   three blurred surfaces on its own. */
+.preview__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 44px;
+  padding: 0.5rem 0.95rem;
+  border-radius: 999px;
+  border: 1px solid rgba(244, 240, 232, 0.18);
+  background: var(--walnut);
+  color: var(--ivory);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  box-shadow: 0 10px 26px rgba(22, 18, 16, 0.28);
+  transition: border-color 0.25s var(--ease-out);
+}
+
+.preview__trigger:hover {
+  border-color: var(--bronze);
+}
+
+/* The Captura emblem is a light mark on pure black, so screen blending
+   drops the black ground and lets it sit directly on the walnut pill. */
+.preview__mark {
+  flex: none;
+  height: 26px;
+  width: auto;
+  mix-blend-mode: screen;
+}
+
+.preview__card {
+  margin: 0;
+  max-width: 17rem;
+  padding: 0.85rem 1rem;
+  border-radius: 14px;
+  border: 1px solid rgba(244, 240, 232, 0.14);
+  background: var(--walnut);
+  color: rgba(244, 240, 232, 0.88);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  box-shadow: 0 14px 34px rgba(22, 18, 16, 0.32);
+}
+
+.preview__card[hidden] {
+  display: none;
+}
+
+.preview__card:not([hidden]) {
+  animation: preview-in 0.2s var(--ease-out);
+}
+
+@keyframes preview-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* ---------- Responsive ---------- */
 
 @media (max-width: 760px) {
