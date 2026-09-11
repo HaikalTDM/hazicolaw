@@ -36,6 +36,9 @@
 
 html {
   scroll-behavior: smooth;
+  /* Reserve the scrollbar track permanently. Without this, unlocking body
+     scroll after the loader removes it and the whole layout shifts. */
+  scrollbar-gutter: stable;
 }
 
 body {
@@ -520,6 +523,12 @@ section:focus {
   align-content: center;
   padding-inline: var(--gutter);
   padding-block: clamp(6rem, 12vh, 9rem);
+}
+
+/* Hero copy waits behind the curtain, so the reveal shows a clean field and
+   the entrance plays in view afterwards rather than restarting. */
+.is-revealing [data-hero-line] {
+  opacity: 0;
 }
 
 .hero__content {
@@ -1908,6 +1917,18 @@ section:focus {
   align-items: flex-start;
   gap: 0.5rem;
   max-width: calc(100vw - 2.5rem);
+  animation: badge-in 0.6s var(--ease-out) 0.2s both;
+}
+
+@keyframes badge-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Solid walnut rather than glass. The badge has to read over both the
@@ -2245,6 +2266,11 @@ section:focus {
     transform: none;
   }
 
+  .preview {
+    animation: none;
+    opacity: 1;
+  }
+
   .process__progress-fill {
     transform: scaleY(1);
   }
@@ -2254,10 +2280,11 @@ section:focus {
   }
 
   /* Without GSAP there is no pin or morph, so the opener unpacks into
-     plain stacked sections and the gallery must be visible. */
+     plain stacked sections and the gallery must be visible. Overflow stays
+     hidden so the ripple rings cannot widen the page. */
   .hero__stage {
     height: auto;
-    overflow: visible;
+    overflow: hidden;
   }
 
   .hero__inner {

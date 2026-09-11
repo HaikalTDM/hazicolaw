@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useState } from 'react'
 import Loader from './components/Loader.jsx'
 import Header from './components/Header.jsx'
 import Hero from './components/Hero.jsx'
@@ -23,11 +23,25 @@ function useBodyLock(locked) {
 export default function App() {
   const reducedMotion = useReducedMotion()
   const [assetsReady, setAssetsReady] = useState(false)
+  const [stageReady, setStageReady] = useState(false)
   const [loaderDone, setLoaderDone] = useState(false)
 
   // Body scroll stays locked until the loader has fully revealed, on every
   // path including reduced motion and unmount.
   useBodyLock(!loaderDone)
+
+  // The hero copy is held back while the curtain covers it, so it can play
+  // its entrance once the reveal is done instead of appearing early and then
+  // restarting. The timeout is a backstop in case a script never lands.
+  useLayoutEffect(() => {
+    const root = document.documentElement
+    root.classList.add('is-revealing')
+    const safety = window.setTimeout(() => root.classList.remove('is-revealing'), 6000)
+    return () => {
+      window.clearTimeout(safety)
+      root.classList.remove('is-revealing')
+    }
+  }, [])
 
   useEffect(() => {
     let cancelled = false
@@ -52,6 +66,10 @@ export default function App() {
     }
   }, [])
 
+  // Stage work runs as the curtain starts to lift, so the pinned sections
+  // are built while the screen is still covered and the page never visibly
+  // grows or shifts. `loaderDone` marks the reveal itself being over.
+  const handleLoaderReveal = useCallback(() => setStageReady(true), [])
   const handleLoaderDone = useCallback(() => setLoaderDone(true), [])
 
 // Lenis smooth scroll drives the page; GSAP ScrollTrigger syncs to it.
@@ -83,8 +101,44 @@ export default function App() {
   // Scoped GSAP choreography: hero entry and the hero→card→gallery pin,
   // the pinned attorney spotlight, and the footer wordmark shift.
   // Reverts on unmount.
+  // Hero copy enters once the curtain has gone.
   useEffect(() => {
-    if (!loaderDone || reducedMotion) return undefined
+    if (!loaderDone) return undefined
+
+    const root = document.documentElement
+
+    if (reducedMotion) {
+      root.classList.remove('is-revealing')
+      return undefined
+    }
+
+    let ctx
+    let cancelled = false
+
+    import('gsap').then(({ gsap }) => {
+      if (cancelled) return
+      ctx = gsap.context(() => {
+        gsap.set('[data-hero-line]', { y: 32, opacity: 0 })
+        root.classList.remove('is-revealing')
+        gsap.to('[data-hero-line]', {
+          y: 0,
+          opacity: 1,
+          duration: 1.1,
+          ease: 'power3.out',
+          stagger: 0.08,
+          delay: 0.1,
+        })
+      })
+    })
+
+    return () => {
+      cancelled = true
+      if (ctx) ctx.revert()
+    }
+  }, [loaderDone, reducedMotion])
+
+  useEffect(() => {
+    if (!stageReady || reducedMotion) return undefined
 
     let ctx
     let cancelled = false
@@ -95,19 +149,6 @@ export default function App() {
         gsap.registerPlugin(ScrollTrigger)
 
         ctx = gsap.context(() => {
-          gsap.fromTo(
-            '[data-hero-line]',
-            { y: 32, opacity: 0 },
-            {
-              y: 0,
-              opacity: 1,
-              duration: 1.1,
-              ease: 'power3.out',
-              stagger: 0.08,
-              delay: 0.1,
-            }
-          )
-
           // Hero → card → gallery, one pinned sequence. The stage folds
           // down to a card, holds, then opens back out while the practice
           // layer fades in on top, so the card unfolds into the section
@@ -346,7 +387,7 @@ export default function App() {
       cancelled = true
       if (ctx) ctx.revert()
     }
-  }, [loaderDone, reducedMotion])
+  }, [stageReady, reducedMotion])
 
   // Magnetic CTAs run only for fine pointers with motion allowed.
   useEffect(() => {
@@ -381,9 +422,12 @@ export default function App() {
 
   return (
     <>
-      {!loaderDone && (
-        <Loader loaded={assetsReady} reducedMotion={reducedMotion} onDone={handleLoaderDone} />
-      )}
+      <Loader
+        loaded={assetsReady}
+        reducedMotion={reducedMotion}
+        onReveal={handleLoaderReveal}
+        onDone={handleLoaderDone}
+      />
       <Header />
       <main>
         <Hero />
