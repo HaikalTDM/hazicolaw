@@ -1,6 +1,6 @@
 import RippleWaves from './RippleWaves.jsx'
-import PracticeAreas from './PracticeAreas.jsx'
 import Logo from './Logo.jsx'
+import PracticeAreas from './PracticeAreas.jsx'
 import { FIRM } from '../data/content.js'
 import { navigateToSection } from '../utils/scroll.js'
 

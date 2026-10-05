@@ -149,23 +149,15 @@ export default function App() {
         gsap.registerPlugin(ScrollTrigger)
 
         ctx = gsap.context(() => {
-          // Hero → card → gallery, one pinned sequence. The stage folds
-          // down to a card, holds, then opens back out while the practice
-          // layer fades in on top, so the card unfolds into the section
-          // instead of into empty walnut.
+          // Hero → letterhead card: the stage shrinks and centres while
+          // the hero copy fades out and the firm's identity fades in.
+          // The pin then releases into the standalone practice section.
           const stage = document.querySelector('.hero__stage')
           const heroContent = document.querySelector('.hero__content')
           const heroRail = document.querySelector('.hero__rail')
           const heroRipple = document.querySelector('.ripple')
           const heroCard = document.querySelector('.hero__card')
-          const practiceLayer = document.querySelector('.hero__stage .practice')
-          const practiceRail = document.querySelector('.practice__rail')
-          const practiceTrack = document.querySelector('.practice__track')
-          const practiceViewport = document.querySelector('.practice__viewport')
-          const meterCurrent = document.querySelector('.practice__meter-current')
-          const practiceCards = Array.from(document.querySelectorAll('.practice__card'))
-          const practiceTicks = Array.from(document.querySelectorAll('.practice__tick'))
-          const areaCount = practiceCards.length
+          const practiceLayer = document.querySelector('.hero__stage > .practice')
 
           if (stage && heroCard) {
             const cardMetrics = () => {
@@ -177,44 +169,12 @@ export default function App() {
               return { width, height, x: (w - width) / 2, y: (h - height) / 2 }
             }
 
-            const paint = (progress) => {
-              if (areaCount === 0) return
-              const step = Math.min(
-                areaCount,
-                Math.max(1, Math.round(progress * (areaCount - 1)) + 1)
-              )
-              if (meterCurrent) {
-                meterCurrent.textContent = String(step).padStart(2, '0')
-              }
-              practiceCards.forEach((card, i) =>
-                card.classList.toggle('is-active', i === step - 1)
-              )
-              practiceTicks.forEach((tick, i) =>
-                tick.classList.toggle('is-passed', i < step)
-              )
-            }
-            paint(0)
-
-            const distance = () =>
-              practiceTrack && practiceViewport
-                ? Math.max(0, practiceTrack.scrollWidth - practiceViewport.clientWidth)
-                : 0
-
             const restore = () => {
               gsap.set(stage, { clearProps: 'width,height,x,y,borderRadius' })
-              gsap.set([heroContent, heroRail, heroRipple, heroCard], {
+              gsap.set([heroContent, heroRail, heroRipple, heroCard, practiceLayer], {
                 clearProps: 'opacity,visibility',
               })
-              if (practiceLayer) {
-                gsap.set(practiceLayer, { clearProps: 'opacity,visibility' })
-              }
-              if (practiceRail) {
-                gsap.set(practiceRail, { clearProps: 'opacity,transform' })
-              }
-              if (practiceTrack) {
-                gsap.set(practiceTrack, { clearProps: 'transform' })
-              }
-              paint(0)
+              stage.classList.remove('is-revealed')
             }
 
             const tl = gsap.timeline({
@@ -227,11 +187,17 @@ export default function App() {
                 pinSpacing: true,
                 anticipatePin: 1,
                 invalidateOnRefresh: true,
+                onLeave: () => {
+                  stage.classList.add('is-revealed')
+                  // The stage grows to auto-height; recalc so the pin-spacer
+                  // and everything below it shift down correctly.
+                  setTimeout(() => ScrollTrigger.refresh(), 0)
+                },
+                onEnterBack: () => stage.classList.remove('is-revealed'),
                 onLeaveBack: restore,
               },
             })
 
-            // Phase 1: the hero folds down into the card.
             tl.fromTo(
               stage,
               { width: '100%', height: '100%', x: 0, y: 0, borderRadius: 0 },
@@ -242,22 +208,22 @@ export default function App() {
                 y: () => cardMetrics().y,
                 borderRadius: 28,
                 ease: 'power2.inOut',
-                duration: 0.7,
+                duration: 0.6,
               },
               0
             )
-            tl.to(heroContent, { autoAlpha: 0, ease: 'none', duration: 0.25 }, 0)
-            tl.to(heroRail, { autoAlpha: 0, ease: 'none', duration: 0.15 }, 0)
-            tl.to(heroRipple, { autoAlpha: 0, ease: 'none', duration: 0.25 }, 0)
+            tl.to(heroContent, { autoAlpha: 0, ease: 'none', duration: 0.2 }, 0)
+            tl.to(heroRail, { autoAlpha: 0, ease: 'none', duration: 0.12 }, 0)
+            tl.to(heroRipple, { autoAlpha: 0, ease: 'none', duration: 0.2 }, 0)
             tl.fromTo(
               heroCard,
               { autoAlpha: 0 },
-              { autoAlpha: 1, ease: 'none', duration: 0.3 },
-              0.35
+              { autoAlpha: 1, ease: 'none', duration: 0.25 },
+              0.3
             )
 
-            // Phase 2: the card opens out and the gallery materialises
-            // inside it, sharing the stage's walnut field.
+            // Phase 2: the card opens back out to full screen, revealing
+            // the dark practice section seamlessly below.
             tl.to(
               stage,
               {
@@ -276,94 +242,14 @@ export default function App() {
               tl.fromTo(
                 practiceLayer,
                 { autoAlpha: 0 },
-                { autoAlpha: 1, ease: 'none', duration: 0.55 },
-                1.15
+                { autoAlpha: 1, ease: 'none', duration: 0.5 },
+                1.1
               )
-            }
-            if (practiceRail) {
-              tl.fromTo(
-                practiceRail,
-                { y: 22, autoAlpha: 0 },
-                { y: 0, autoAlpha: 1, ease: 'power2.out', duration: 0.5 },
-                1.2
-              )
-            }
-
-            // Phase 3: the gallery scrubs sideways.
-            if (practiceTrack && practiceViewport && areaCount > 0) {
-              const trackTween = gsap.to(practiceTrack, {
-                x: () => -distance(),
-                ease: 'none',
-                duration: 1.2,
-                onUpdate: () => paint(trackTween.progress()),
-              })
-              tl.add(trackTween, 1.8)
             }
           }
 
-          // People: three scroll beats inside one pin, the pair, then
-          // the left portrait enlarged with its details on the right,
-          // then the right portrait enlarged with its details on the
-          // left, then back to the pair.
-          const people = document.querySelector('.people')
-          const mediaA = document.querySelector('[data-media="a"]')
-          const mediaB = document.querySelector('[data-media="b"]')
-          const detailA = document.querySelector('[data-detail="a"]')
-          const detailB = document.querySelector('[data-detail="b"]')
-          const portraitA = mediaA ? mediaA.querySelector('.people__portrait') : null
-          const portraitB = mediaB ? mediaB.querySelector('.people__portrait') : null
-
-          if (
-            window.matchMedia('(min-width: 900px)').matches &&
-            people &&
-            mediaA &&
-            mediaB &&
-            detailA &&
-            detailB &&
-            portraitA &&
-            portraitB
-          ) {
-            const tl = gsap.timeline({
-              scrollTrigger: {
-                trigger: people,
-                start: 'top top',
-                end: '+=300%',
-                pin: true,
-                pinSpacing: true,
-                scrub: 0.6,
-                anticipatePin: 1,
-                invalidateOnRefresh: true,
-              },
-            })
-
-            // Beat 1: left grows, its details arrive on the right.
-            tl.to(portraitA, { scale: 1.18, ease: 'power2.inOut', duration: 0.5 }, 0.35)
-            tl.to(mediaB, { opacity: 0, ease: 'power2.inOut', duration: 0.5 }, 0.35)
-            tl.fromTo(
-              detailA,
-              { autoAlpha: 0, y: 26 },
-              { autoAlpha: 1, y: 0, ease: 'power2.out', duration: 0.45 },
-              0.5
-            )
-
-            // Beat 2: right takes over, its details arrive on the left.
-            tl.to(detailA, { autoAlpha: 0, y: -18, ease: 'power2.in', duration: 0.3 }, 1.15)
-            tl.to(mediaA, { opacity: 0, ease: 'power2.inOut', duration: 0.5 }, 1.25)
-            tl.to(portraitA, { scale: 1, ease: 'power2.inOut', duration: 0.5 }, 1.25)
-            tl.to(portraitB, { scale: 1.18, ease: 'power2.inOut', duration: 0.5 }, 1.25)
-            tl.to(mediaB, { opacity: 1, ease: 'power2.inOut', duration: 0.5 }, 1.25)
-            tl.fromTo(
-              detailB,
-              { autoAlpha: 0, y: 26 },
-              { autoAlpha: 1, y: 0, ease: 'power2.out', duration: 0.45 },
-              1.4
-            )
-
-            // Beat 3: back to the pair.
-            tl.to(detailB, { autoAlpha: 0, y: -18, ease: 'power2.in', duration: 0.3 }, 2.15)
-            tl.to(mediaA, { opacity: 1, ease: 'power2.inOut', duration: 0.5 }, 2.25)
-            tl.to(portraitB, { scale: 1, ease: 'power2.inOut', duration: 0.5 }, 2.25)
-          }
+          // People: two always-visible cards expand on click (see
+          // People/Partners component). No scroll animation here.
 
           gsap.fromTo(
             '[data-footer-word]',

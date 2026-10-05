@@ -654,239 +654,202 @@ section:focus {
   color: var(--bronze);
 }
 
-/* Embedded practice layer. It sits inside the pinned stage so the card
-   opens straight into the gallery. Sized to the viewport and centred
-   rather than to the stage, so the layout never reflows while the card
-   is still growing: the expanding stage simply uncovers more of it.
-   Transparent background: the stage supplies the walnut field, which is
-   why there is no blank frame between the card and the section. */
+/* Embedded practice layer: sits on the stage so the expanding card
+   reveals it directly (no blank frame). Absolute while pinned, then the
+   stage flips to auto-height so the full section scrolls normally. */
 .hero__stage > .practice {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 100vw;
-  height: 100svh;
-  transform: translate(-50%, -50%);
+  top: 0;
+  left: 0;
+  width: 100%;
+  min-height: 100svh;
   z-index: 2;
-  background: none;
   opacity: 0;
   visibility: hidden;
 }
 
-.hero__stage .practice__inner {
-  min-height: 100%;
+.hero__stage.is-revealed {
+  height: auto !important;
+  overflow: visible;
 }
 
-/* ---------- Practice areas (pinned horizontal gallery) ----------
-   Deliberately the same walnut field and bronze glow as the hero card,
-   so the card appears to open out into this section. */
+.hero__stage.is-revealed > .practice {
+  position: static;
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ---------- Practice areas (standalone, static) ----------
+   Two featured areas lead, then the remaining eight follow. */
 
 .practice {
   position: relative;
+  padding-block: var(--section-y);
   background:
-    radial-gradient(120% 80% at 80% 10%, rgba(165, 106, 58, 0.22), transparent 60%),
+    radial-gradient(120% 80% at 80% 0%, rgba(165, 106, 58, 0.2), transparent 55%),
     var(--walnut);
   color: var(--ivory);
 }
 
-.practice__inner {
-  display: grid;
-  grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.85fr);
-  align-items: center;
-  gap: clamp(1.5rem, 4vw, 3.5rem);
-  min-height: 100svh;
-  padding-block: var(--section-y);
-}
-
-.practice__rail {
-  display: grid;
-  gap: clamp(2rem, 5vw, 3.25rem);
-  align-content: center;
+.practice__head {
+  max-width: 46rem;
+  margin-bottom: clamp(2.5rem, 6vw, 4.5rem);
 }
 
 .practice__head .eyebrow {
   color: var(--bronze);
 }
 
-.practice__head h2 {
+.practice__heading {
   font-family: var(--serif);
   font-weight: 400;
-  font-size: clamp(1.9rem, 3.3vw, 2.75rem);
-  line-height: 1.16;
+  font-size: clamp(1.9rem, 3.6vw, 3rem);
+  line-height: 1.12;
   letter-spacing: -0.015em;
   color: var(--ivory);
 }
 
-.practice__meter {
+.practice__featured-grid {
   display: grid;
-  gap: 1.25rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1.25rem, 3vw, 2.5rem);
 }
 
-.practice__count {
-  display: flex;
-  align-items: baseline;
-  gap: 0.6rem;
-  margin: 0;
-}
-
-.practice__meter-current {
-  font-family: var(--serif);
-  font-size: clamp(2.75rem, 5vw, 4.5rem);
-  line-height: 0.9;
-  color: var(--ivory);
-  font-variant-numeric: tabular-nums;
-}
-
-.practice__count-total {
-  font-size: 0.85rem;
-  letter-spacing: 0.14em;
-  color: rgba(244, 240, 232, 0.45);
-}
-
-.practice__ticks {
-  display: flex;
-  gap: 0.4rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.practice__tick {
-  flex: 1;
-  height: 2px;
-  background: rgba(244, 240, 232, 0.16);
-  overflow: hidden;
-}
-
-.practice__tick span {
-  display: block;
-  height: 100%;
-  background: var(--bronze);
-  transform: scaleX(0);
-  transform-origin: left center;
-  transition: transform 0.45s var(--ease-out);
-}
-
-.practice__tick.is-passed span {
-  transform: scaleX(1);
-}
-
-.practice__viewport {
-  overflow: hidden;
-  padding-block: 1.5rem;
-  margin-block: -1.5rem;
-}
-
-.practice__track {
-  display: flex;
-  gap: clamp(1rem, 1.8vw, 1.5rem);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  will-change: transform;
-}
-
-.practice__card {
+.practice__featured {
   position: relative;
-  overflow: hidden;
-  flex: 0 0 clamp(16rem, 23vw, 21rem);
   display: grid;
-  grid-template-rows: auto auto 1fr auto;
-  gap: 1rem;
   align-content: start;
-  min-height: 24rem;
-  padding: clamp(1.5rem, 2.6vw, 2.25rem);
-  border: 1px solid rgba(244, 240, 232, 0.14);
-  background: linear-gradient(
-    180deg,
-    rgba(244, 240, 232, 0.055),
-    rgba(244, 240, 232, 0.012)
-  );
+  gap: 1.1rem;
+  padding: clamp(1.75rem, 3vw, 2.75rem);
+  border-radius: 16px;
+  border: 1px solid rgba(244, 240, 232, 0.16);
+  background:
+    radial-gradient(120% 80% at 85% 0%, rgba(165, 106, 58, 0.3), transparent 55%),
+    linear-gradient(180deg, rgba(244, 240, 232, 0.07), rgba(244, 240, 232, 0.02));
   color: var(--ivory);
-  opacity: 0.5;
-  transform: scale(0.97);
-  transition: opacity 0.45s var(--ease-out), transform 0.45s var(--ease-out),
-    border-color 0.45s var(--ease-out), background-color 0.45s var(--ease-out);
+  overflow: hidden;
 }
 
-.practice__watermark {
+.practice__featured-index {
   position: absolute;
-  top: -1.25rem;
-  right: 0.25rem;
+  top: 1.25rem;
+  right: 1.5rem;
   font-family: var(--serif);
-  font-size: clamp(4.5rem, 8vw, 6.5rem);
+  font-size: clamp(3rem, 5vw, 4.25rem);
   line-height: 1;
   color: transparent;
-  -webkit-text-stroke: 1px rgba(244, 240, 232, 0.12);
+  -webkit-text-stroke: 1px rgba(165, 106, 58, 0.55);
   pointer-events: none;
 }
 
-.practice__card::after {
+.practice__featured-title {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(1.5rem, 2.6vw, 2rem);
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  color: var(--ivory);
+  padding-right: 3rem;
+}
+
+.practice__featured-summary {
+  color: rgba(244, 240, 232, 0.78);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  max-width: 38ch;
+}
+
+.practice__featured-points {
+  margin: 0.25rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.practice__featured-points li {
+  position: relative;
+  padding-left: 1.2rem;
+  font-size: 0.9rem;
+  color: rgba(244, 240, 232, 0.92);
+}
+
+.practice__featured-points li::before {
   content: '';
   position: absolute;
   left: 0;
-  right: 0;
-  bottom: 0;
-  height: 2px;
+  top: 0.55em;
+  width: 0.5rem;
+  height: 1px;
   background: var(--bronze);
-  transform: scaleX(0);
-  transform-origin: left center;
-  transition: transform 0.55s var(--ease-out);
 }
 
-.practice__index {
-  position: relative;
-  font-size: 0.8rem;
-  letter-spacing: 0.14em;
+.practice__featured-partner {
+  margin-top: 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(244, 240, 232, 0.18);
+  font-size: 0.82rem;
+  letter-spacing: 0.02em;
+  color: rgba(244, 240, 232, 0.7);
+}
+
+.practice__featured-partner a {
+  color: var(--ivory);
+  text-decoration: underline;
+  text-decoration-color: var(--bronze);
+  text-underline-offset: 0.25em;
+  transition: color 0.2s var(--ease-out);
+}
+
+.practice__featured-partner a:hover {
   color: var(--bronze);
 }
 
-.practice__title {
-  position: relative;
-  font-size: clamp(1.2rem, 1.8vw, 1.5rem);
-  line-height: 1.22;
+.practice__other-heading {
+  margin: clamp(3rem, 7vw, 4.5rem) 0 1.75rem;
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--bronze);
 }
 
-.practice__desc {
-  position: relative;
-  max-width: 26rem;
-  color: rgba(244, 240, 232, 0.68);
-  font-size: 0.925rem;
-  transition: color 0.45s var(--ease-out);
+.practice__other-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: clamp(2rem, 5vw, 4rem);
+  row-gap: 1.75rem;
+  padding-top: 1.75rem;
+  border-top: 1px solid rgba(244, 240, 232, 0.18);
 }
 
-.practice__rule {
-  display: block;
-  height: 1px;
-  margin-top: 1rem;
-  background: rgba(244, 240, 232, 0.18);
+.practice__other {
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr);
+  gap: 0.35rem 1rem;
 }
 
-.practice__track .practice__card.is-active {
-  opacity: 1;
-  transform: scale(1);
-  border-color: rgba(165, 106, 58, 0.5);
-  background: linear-gradient(
-    180deg,
-    rgba(244, 240, 232, 0.09),
-    rgba(244, 240, 232, 0.02)
-  );
+.practice__other-index {
+  grid-row: span 2;
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  color: var(--bronze);
+  padding-top: 0.25rem;
 }
 
-.practice__card.is-active::after {
-  transform: scaleX(1);
+.practice__other-title {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 1.15rem;
+  line-height: 1.25;
+  color: var(--ivory);
 }
 
-.practice__track .practice__card:hover,
-.practice__track .practice__card:focus-visible {
-  opacity: 1;
-  transform: scale(1);
-  border-color: var(--bronze);
-}
-
-.practice__card:hover .practice__desc,
-.practice__card:focus-visible .practice__desc {
-  color: rgba(244, 240, 232, 0.85);
+.practice__other-summary {
+  color: rgba(244, 240, 232, 0.72);
+  font-size: 0.9rem;
+  line-height: 1.55;
 }
 
 /* ---------- Philosophy ---------- */
@@ -1001,26 +964,22 @@ section:focus {
 }
 
 /* ---------- People, "Meet the attorneys" ----------
-   Three scroll beats inside one pinned section: the pair of portraits,
-   then the left one enlarged with its details on the right, then the
-   right one enlarged with its details on the left, then back to the
-   pair. Media and details are placed into the same grid cells so the
-   details crossfade over the opposite portrait. */
+   Two always-visible cards. Clicking a card expands it in place to
+   reveal the partner's full profile. No scroll-driven animation. */
 
 .people {
   position: relative;
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: clamp(1.25rem, 3vh, 2rem);
-  padding-block: clamp(3rem, 7vh, 5rem);
+  padding-block: var(--section-y);
   background: #fff;
   color: var(--ink);
-  overflow: hidden;
 }
 
-.people__head h2 {
+.people__head {
+  max-width: 46rem;
+  margin-bottom: clamp(2.5rem, 6vw, 4.5rem);
+}
+
+.people__heading {
   font-family: var(--serif);
   font-weight: 400;
   font-size: clamp(1.9rem, 3.6vw, 2.9rem);
@@ -1032,43 +991,45 @@ section:focus {
 .people__stage {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  grid-template-rows: auto;
-  align-items: center;
-  gap: clamp(1rem, 2vw, 1.75rem);
+  align-items: start;
+  gap: clamp(1.25rem, 3vw, 2.5rem);
 }
 
-.people__media,
-.people__detail {
-  grid-row: 1;
+.people__card {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+  overflow: hidden;
+  transition: box-shadow 0.35s var(--ease-out);
 }
 
-.people__media[data-media='a'],
-.people__detail[data-detail='b'] {
-  grid-column: 1;
+.people__card.is-expanded {
+  box-shadow: 0 18px 44px rgba(22, 18, 16, 0.14);
 }
 
-.people__media[data-media='b'],
-.people__detail[data-detail='a'] {
-  grid-column: 2;
+.people__card-trigger {
+  display: block;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
 }
 
 .people__media {
   position: relative;
-  z-index: 0;
-  justify-self: center;
-  height: min(66vh, 34rem);
   aspect-ratio: 1122 / 1402;
   overflow: hidden;
-  border: 1px solid var(--line);
-  background: #fff;
-  will-change: opacity;
+  background: #f7f2e8;
 }
 
 .people__portrait {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  will-change: transform;
+  transition: transform 0.5s var(--ease-out);
+}
+
+.people__card-trigger:hover .people__portrait {
+  transform: scale(1.03);
 }
 
 .people__portrait--placeholder {
@@ -1114,46 +1075,133 @@ section:focus {
   color: var(--wood);
 }
 
-.people__detail {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  align-content: center;
-  gap: 0.6rem;
-  padding: clamp(1.5rem, 3vw, 2.5rem);
-  background: #fff;
-  opacity: 0;
-  visibility: hidden;
-}
-
-.people__index {
-  font-size: 0.78rem;
-  letter-spacing: 0.16em;
-  color: var(--bronze);
+.people__card-head {
+  padding: clamp(1.25rem, 2.5vw, 1.75rem);
 }
 
 .people__name {
-  font-size: clamp(1.7rem, 3.2vw, 2.6rem);
-  line-height: 1.08;
+  font-size: clamp(1.5rem, 2.8vw, 2.1rem);
+  line-height: 1.1;
   letter-spacing: -0.02em;
   color: var(--walnut);
 }
 
 .people__role {
-  margin-top: -0.2rem;
-  font-size: 0.75rem;
+  margin-top: 0.35rem;
+  font-size: 0.72rem;
   font-weight: 600;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--bronze);
 }
 
+.people__teaser {
+  margin-top: 0.9rem;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--muted);
+  max-width: 34ch;
+}
+
+.people__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 1.25rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--walnut);
+}
+
+.people__toggle::after {
+  content: '';
+  width: 0.5rem;
+  height: 0.5rem;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform 0.3s var(--ease-out);
+}
+
+.people__card.is-expanded .people__toggle::after {
+  transform: rotate(-135deg);
+}
+
+/* Collapsible bio: grid-rows 0fr -> 1fr animates height without a
+   fixed dimension; the inner wrapper clips the overflow. */
+.people__bio {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.4s var(--ease-out);
+}
+
+.people__card.is-expanded .people__bio {
+  grid-template-rows: 1fr;
+}
+
+.people__bio-inner {
+  overflow: hidden;
+  padding: 0 clamp(1.25rem, 2.5vw, 1.75rem);
+}
+
+.people__card.is-expanded .people__bio-inner {
+  padding-bottom: clamp(1.5rem, 2.5vw, 2rem);
+}
+
+.people__bio-block {
+  border-top: 1px solid var(--line);
+  padding-block: 1.1rem;
+}
+
+.people__bio-title {
+  font-family: var(--sans);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--bronze);
+  margin-bottom: 0.6rem;
+}
+
+.people__bio-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.people__bio-list li {
+  position: relative;
+  padding-left: 1.1rem;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--ink);
+}
+
+.people__bio-list li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.62em;
+  width: 0.35rem;
+  height: 1px;
+  background: var(--bronze);
+}
+
+.people__bio-text {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--ink);
+}
+
 .people__contacts {
   display: flex;
   flex-wrap: wrap;
   gap: 0.25rem 1.5rem;
-  margin: 0.75rem 0 0;
-  padding: 0.9rem 0 0;
+  margin: 0;
+  padding: 1.1rem 0 0;
   list-style: none;
   border-top: 1px solid var(--line);
 }
@@ -2117,36 +2165,9 @@ section:focus {
     grid-template-columns: 1fr;
   }
 
-  /* Rail above, horizontal card track below, so the 01 to 10 scrub
-     still reads on a narrow screen. */
-  .practice__inner {
+  .practice__featured-grid,
+  .practice__other-grid {
     grid-template-columns: 1fr;
-    grid-template-rows: auto minmax(0, 1fr);
-    align-content: center;
-    gap: 1.25rem;
-    padding-block: 5rem 3rem;
-  }
-
-  .practice__head h2 {
-    font-size: clamp(1.5rem, 7vw, 2rem);
-  }
-
-  .practice__meter {
-    gap: 0.75rem;
-  }
-
-  .practice__meter-current {
-    font-size: clamp(2rem, 9vw, 2.75rem);
-  }
-
-  .practice__viewport {
-    overflow: hidden;
-    padding-block: 0;
-    margin-block: 0;
-  }
-
-  .practice__card {
-    min-height: 16rem;
   }
 
   .philosophy__sticky,
@@ -2178,53 +2199,8 @@ section:focus {
     grid-area: summary;
   }
 
-  .people {
-    min-height: auto;
-  }
-
   .people__stage {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto;
-    height: auto;
-    gap: 2.5rem;
-  }
-
-  .people__media[data-media],
-  .people__detail[data-detail] {
-    grid-column: 1;
-    grid-row: auto;
-  }
-
-  .people__media {
-    width: 100%;
-    height: auto;
-    aspect-ratio: 1122 / 1402;
-  }
-
-  .people__media[data-media='a'] {
-    order: 1;
-  }
-
-  .people__detail[data-detail='a'] {
-    order: 2;
-  }
-
-  .people__media[data-media='b'] {
-    order: 3;
-  }
-
-  .people__detail[data-detail='b'] {
-    order: 4;
-  }
-
-  .people__detail {
-    position: static;
-    opacity: 1;
-    visibility: visible;
-    background: none;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-    padding: 0;
+    gap: 1.5rem;
   }
 
   .faq__panel-inner {
@@ -2303,91 +2279,9 @@ section:focus {
 
   .hero__stage > .practice {
     position: static;
-    width: auto;
-    height: auto;
-    transform: none;
     opacity: 1;
     visibility: visible;
   }
 
-  .hero__stage .practice__inner {
-    min-height: auto;
-  }
-
-  /* No pin and no beats: both attorneys show with their details. */
-  .people {
-    min-height: auto;
-  }
-
-  .people__stage {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto;
-    height: auto;
-    gap: 2.5rem;
-  }
-
-  .people__media[data-media],
-  .people__detail[data-detail] {
-    grid-column: 1;
-    grid-row: auto;
-  }
-
-  .people__media {
-    width: 100%;
-    height: auto;
-    aspect-ratio: 1122 / 1402;
-  }
-
-  .people__media[data-media='a'] {
-    order: 1;
-  }
-
-  .people__detail[data-detail='a'] {
-    order: 2;
-  }
-
-  .people__media[data-media='b'] {
-    order: 3;
-  }
-
-  .people__detail[data-detail='b'] {
-    order: 4;
-  }
-
-  .people__detail {
-    position: static;
-    opacity: 1;
-    visibility: visible;
-    background: none;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-    padding: 0;
-  }
-
-  .practice__inner {
-    grid-template-columns: 1fr;
-    min-height: auto;
-  }
-
-  .practice__viewport {
-    overflow: visible;
-    padding-block: 0;
-    margin-block: 0;
-  }
-
-  .practice__track {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-
-  .practice__card {
-    min-height: 0;
-    opacity: 1;
-    transform: none;
-  }
-
-  .practice__tick span {
-    transform: scaleX(1);
-  }
+  /* People uses click-to-expand cards; nothing scroll-pinned to reset. */
 }

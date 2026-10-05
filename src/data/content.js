@@ -20,56 +20,77 @@ export const FIRM = {
   year: 2026,
 }
 
-export const PRACTICE_AREAS = [
+export const FEATURED_AREAS = [
   {
+    id: 'employment',
     index: '01',
+    title: 'Industrial Relations & Employment Law',
+    summary:
+      'Advice and representation across the full employment lifecycle, from contracts and workplace policies to disciplinary processes, dismissals, and disputes before the Industrial Court.',
+    partner: 'Muhajir Wazinie',
+    points: [
+      'Misconduct & domestic inquiry advisory',
+      'Constructive dismissal claims',
+      'Retrenchment & workforce restructuring',
+      'Labour court proceedings',
+    ],
+  },
+  {
+    id: 'estate',
+    index: '02',
+    title: 'Estate Planning, Wills (Wasiat & Hibah)',
+    summary:
+      'Syariah-compliant estate planning that keeps wealth moving the way you intend, covering wills, wasiat, hibah, faraid, and estate administration.',
+    partner: 'Haziq Azhari',
+    points: [
+      'Wills & wasiat drafting',
+      'Hibah structuring',
+      'Faraid & Syariah-compliant planning',
+      'Probate & estate administration',
+    ],
+  },
+]
+
+export const OTHER_AREAS = [
+  {
+    index: '03',
     title: 'Business Development',
     summary: 'Advisory for growth, commercial arrangements, and new ventures.',
   },
   {
-    index: '02',
+    index: '04',
     title: 'Corporate Liability & Risk Management',
     summary: 'Governance, exposure, and risk across corporate operations.',
   },
   {
-    index: '03',
+    index: '05',
     title: 'Trusts',
     summary: 'Establishing, administering, and advising on trusts.',
   },
   {
-    index: '04',
-    title: 'Estate Planning, Wills (Wasiat & Hibah)',
-    summary: 'Wills, wasiat, hibah, and the orderly transfer of wealth.',
-  },
-  {
-    index: '05',
+    index: '06',
     title: 'Family Law',
     summary: 'Matrimonial, family, and related personal matters.',
   },
   {
-    index: '06',
+    index: '07',
     title: 'Conveyancing & Real Estate',
     summary: 'Property transactions, transfers, and real estate advisory.',
   },
   {
-    index: '07',
+    index: '08',
     title: 'Litigation',
     summary: 'Representation in court and tribunal proceedings.',
   },
   {
-    index: '08',
+    index: '09',
     title: 'Project & Corporate Advisory',
     summary: 'Structuring and advisory for projects and corporate transactions.',
   },
   {
-    index: '09',
-    title: 'Banking & Finance',
-    summary: 'Financing, security documentation, and banking matters.',
-  },
-  {
     index: '10',
-    title: 'Debt Recovery & Bankruptcy',
-    summary: 'Recovery actions, insolvency, and bankruptcy.',
+    title: 'Banking, Finance & Debt Recovery',
+    summary: 'Financing, security documentation, debt recovery, and bankruptcy.',
   },
 ]
 
@@ -83,6 +104,33 @@ export const PARTNERS = [
     whatsapp: 'https://wa.me/60133706402',
     monogram: 'HA',
     portrait: haziqPortrait,
+    teaser:
+      'Licensed Islamic Estate Planner; advises on estate planning, corporate structuring, and civil litigation.',
+    bio: {
+      education: [
+        'Bachelor of Laws (Honours), LL.B (Hons), UiTM',
+        'Postgraduate Diploma in Syariah Law and Practice (DLSA), UiTM',
+      ],
+      focus: [
+        'Licensed Islamic Estate Planner at As-Salihin Trustee Berhad (2021–present), specialising in Syariah-compliant estate planning including hibah, wasiat, and faraid',
+        'General Civil Litigation',
+        'Project and Corporate Advisory',
+        'Business Development and Risk Management',
+        'Conveyancing',
+        'Debt Recovery and Execution Proceedings',
+      ],
+      highlightsLabel: 'Selected experience',
+      highlights: [
+        'Advised on the incorporation and structuring of companies, SMEs, and partnerships across Kuala Lumpur, Selangor, and Melaka, particularly within the F&B, consultancy services, and sports centre industries.',
+        'Advised clients in mediation proceedings on debt recovery and settlement structuring, with a focus on commercially practical and cost-efficient outcomes.',
+        'Advised on the incorporation and regulatory compliance of non-governmental organisations with the Registrar of Societies (ROS), including constitution drafting, governance structuring, and regulatory documentation.',
+        'Drafted and advised on 1,041 wasiat and hibah instruments, ensuring compliance with applicable civil and Syariah principles.',
+      ],
+      journey:
+        'Developed a strong foundation in civil and Syariah law through UiTM, followed by pupillage at Messrs. Bhadarul Baharain & Partners, focusing on probate, estate administration, and corporate matters.',
+      aspiration:
+        'Committed to bridging Islamic legal principles with modern financial and legal frameworks, delivering Syariah-compliant advisory, estate management, and strategic legal services for individuals and corporate entities.',
+    },
   },
   {
     id: 'muhajir-wazinie',
@@ -93,6 +141,40 @@ export const PARTNERS = [
     whatsapp: 'https://wa.me/60128583561',
     monogram: 'MW',
     portrait: mujahirPortrait,
+    teaser:
+      'Industrial relations and employment specialist with a record of reported decisions in the Industrial Court.',
+    bio: {
+      education: [
+        'Bachelor of Laws (Honours), LL.B (Hons), UiTM',
+        'Diploma in Public Administration (DPA), UiTM',
+      ],
+      focus: [
+        'Industrial Relations and Employment Law',
+        'General Civil Litigation and Commercial Litigation',
+        'Misconduct & Domestic Inquiry Advisory',
+        'Constructive Dismissal Claims',
+        'Retrenchment & Workforce Restructuring',
+      ],
+      highlightsLabel: 'Reported decisions',
+      highlights: [
+        'S Ravichandran M Sinniah v. IGC Industrial Galvanizers Corporation (M) Sdn Bhd [2025] ILRU 0097',
+        'Tan Jin Hui v. Lafarge Concrete (Malaysia) Sdn Bhd [2025] CLU 557',
+        'Adnan Osup v. Empire Manufacturing Sdn Bhd [2025] 1 ILR 118',
+        'Nur Haniza Mohd Azhar v. Mizznina Productions [2025] ILRU 1401',
+        'Riza Feizal Sham v. Sapura Research Sdn Bhd [2025] ILRU 0317',
+        'Chang Shen Yun v. Robert Bosch Sdn Bhd [2025] ILRU 0755',
+        'Poh Kwei Wah v. Dindings Poultry Development Centre Sdn Bhd [2024] ILRU 1638',
+        'Tan Jin Hui v. Lafarge Concrete (Malaysia) Sdn Bhd [2024] ILRU 0540',
+        'Nedunchelian Raman v. Genesys Laboratories Sdn Bhd [2024] ILRU 0050',
+        'Rajendran Balakrishnan v. Associated Pan Malaysia Cement Sendirian Berhad [2025] ILRU 1696',
+        'Mohd Saifuddin Abdullah v. Campbell Cheong Chan (Malaysia) Sdn Bhd [2023] ILRU 1482',
+        'Maarziana Nasser Ali Khan v. Zurich General Insurance Malaysia Berhad [2023] ILRU 1611',
+      ],
+      journey:
+        'Combines a strong foundation in governance and regulatory systems with an LL.B (Hons), advising employers on disciplinary processes, domestic inquiries, termination procedures, and retrenchment planning, and representing employers in dismissal, retrenchment, and disciplinary disputes.',
+      aspiration:
+        'Committed to practical, commercially minded legal solutions across employment, industrial relations, and litigation matters.',
+    },
   },
 ]
 
