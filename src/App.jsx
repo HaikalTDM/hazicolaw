@@ -214,7 +214,7 @@ export default function App() {
               scrollTrigger: {
                 trigger: '.hero',
                 start: 'top top',
-                end: '+=300%',
+                end: '+=90%',
                 scrub: 0.6,
                 pin: true,
                 pinSpacing: true,
@@ -265,13 +265,11 @@ export default function App() {
             )
 
             // Phase 2: the card opens back out to full screen. The letterhead
-            // rides the growth, then the practice section slides up over it
-            // like a page turning. A crossfade left the letterhead ghosted on
-            // top of the practice text, so the hand-off is a solid wipe
-            // instead: the practice is opaque and covers the letterhead as it
-            // rises, so the two are never superimposed.
-            const handoffAt = 1.4
-            const handoffDuration = 0.3
+            // hands off first, then the practice section morphs in (fades and
+            // scales up into place) rather than sliding in from below. The
+            // letterhead must be gone before the incoming section turns
+            // translucent, or the two ghost through each other.
+            const handoffAt = 1.35
             tl.to(
               stage,
               {
@@ -285,16 +283,18 @@ export default function App() {
               },
               1.0
             )
+            tl.to(heroCard, { autoAlpha: 0, ease: 'none', duration: 0.2 }, handoffAt)
             if (practiceLayer) {
               tl.fromTo(
                 practiceLayer,
-                { autoAlpha: 1, y: () => window.innerHeight },
+                { autoAlpha: 0, scale: 0.94, transformOrigin: '50% 50%' },
                 {
-                  y: 0,
-                  ease: 'power2.inOut',
-                  duration: handoffDuration,
+                  autoAlpha: 1,
+                  scale: 1,
+                  ease: 'power2.out',
+                  duration: 0.5,
                 },
-                handoffAt
+                handoffAt + 0.2
               )
             }
           }
