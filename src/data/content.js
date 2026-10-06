@@ -13,8 +13,14 @@ export const FIRM = {
   designation: 'Advocates & Solicitors',
   city: 'Kuala Lumpur',
   email: 'general.hazicolaw@outlook.com',
+  // Single target for the "Your brief" WhatsApp handoff. Swap for a
+  // per-practice-area map if the firm wants routing later.
+  whatsapp: '60133706402',
   address:
     'B2-3, Solaris Dutamas, No 1 Jalan Dutamas 1, 50480 Kuala Lumpur, Malaysia',
+  // The full unit address returns a scatter of nearby listings in Google
+  // Maps, so the embed pins the development itself.
+  mapQuery: 'Solaris Dutamas, Jalan Dutamas 1, 50480 Kuala Lumpur, Malaysia',
   area: 'Solaris Dutamas, W.P. Kuala Lumpur',
   instagram: 'https://www.instagram.com/hazicolaw/',
   year: 2026,
@@ -27,6 +33,8 @@ export const FEATURED_AREAS = [
     title: 'Industrial Relations & Employment Law',
     summary:
       'Advice and representation across the full employment lifecycle, from contracts and workplace policies to disciplinary processes, dismissals, and disputes before the Industrial Court.',
+    plain:
+      'Workplace disputes: unfair dismissal, misconduct hearings at work, layoffs, and cases at the Industrial Court.',
     partner: 'Muhajir Wazinie',
     points: [
       'Misconduct & domestic inquiry advisory',
@@ -41,6 +49,8 @@ export const FEATURED_AREAS = [
     title: 'Estate Planning, Wills (Wasiat & Hibah)',
     summary:
       'Syariah-compliant estate planning that keeps wealth moving the way you intend, covering wills, wasiat, hibah, faraid, and estate administration.',
+    plain:
+      'Who receives your assets after you pass. Wasiat is an Islamic will, hibah is a gift made while you are alive, and faraid sets the fixed shares.',
     partner: 'Haziq Azhari',
     points: [
       'Wills & wasiat drafting',
@@ -53,44 +63,55 @@ export const FEATURED_AREAS = [
 
 export const OTHER_AREAS = [
   {
+    id: 'business-development',
     index: '03',
     title: 'Business Development',
     summary: 'Advisory for growth, commercial arrangements, and new ventures.',
   },
   {
+    id: 'corporate-liability-risk',
     index: '04',
     title: 'Corporate Liability & Risk Management',
     summary: 'Governance, exposure, and risk across corporate operations.',
   },
   {
+    id: 'trusts',
     index: '05',
     title: 'Trusts',
     summary: 'Establishing, administering, and advising on trusts.',
+    plain: 'A legal arrangement where someone holds assets for another person’s benefit.',
   },
   {
+    id: 'family-law',
     index: '06',
     title: 'Family Law',
     summary: 'Matrimonial, family, and related personal matters.',
   },
   {
+    id: 'conveyancing-real-estate',
     index: '07',
     title: 'Conveyancing & Real Estate',
     summary: 'Property transactions, transfers, and real estate advisory.',
+    plain: 'Buying, selling, or transferring property, including the paperwork.',
   },
   {
+    id: 'litigation',
     index: '08',
     title: 'Litigation',
     summary: 'Representation in court and tribunal proceedings.',
   },
   {
+    id: 'project-corporate-advisory',
     index: '09',
     title: 'Project & Corporate Advisory',
     summary: 'Structuring and advisory for projects and corporate transactions.',
   },
   {
+    id: 'banking-finance-debt-recovery',
     index: '10',
     title: 'Banking, Finance & Debt Recovery',
     summary: 'Financing, security documentation, debt recovery, and bankruptcy.',
+    plain: 'Loan paperwork, security over assets, recovering money owed, and insolvency.',
   },
 ]
 

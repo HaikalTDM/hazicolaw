@@ -275,6 +275,33 @@ export default function Contact() {
           </form>
         </Reveal>
       </div>
+
+      {/* Map is informational: the iframe keeps pointer-events off so a
+          wheel or drag over it cannot trap the page's smooth scroll, and
+          the link opens the real map for zooming and directions. */}
+      <div className="shell">
+        <Reveal className="contact__map">
+          <div className="contact__map-visual">
+            <iframe
+              className="contact__map-frame"
+              title={`Map showing ${FIRM.address}`}
+              src={`https://maps.google.com/maps?q=${encodeURIComponent(FIRM.mapQuery)}&z=16&output=embed`}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            />
+            <a
+              className="contact__map-link"
+              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(FIRM.address)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Open in Google Maps
+              <span className="sr-only"> (opens in a new tab)</span>
+            </a>
+          </div>
+          <p className="contact__map-address">{FIRM.address}</p>
+        </Reveal>
+      </div>
     </section>
   )
 }

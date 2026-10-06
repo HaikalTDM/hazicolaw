@@ -7,6 +7,7 @@ import FAQ from './components/FAQ.jsx'
 import Contact from './components/Contact.jsx'
 import Footer from './components/Footer.jsx'
 import PreviewBadge from './components/PreviewBadge.jsx'
+import { BriefProvider, BriefDock } from './components/BriefCart.jsx'
 import { useReducedMotion } from './hooks/useReducedMotion.js'
 
 function useBodyLock(locked) {
@@ -72,31 +73,57 @@ export default function App() {
   const handleLoaderReveal = useCallback(() => setStageReady(true), [])
   const handleLoaderDone = useCallback(() => setLoaderDone(true), [])
 
-// Lenis smooth scroll drives the page; GSAP ScrollTrigger syncs to it.
+  // Lenis smooth scroll drives the page. GSAP's ticker drives Lenis and
+  // ScrollTrigger.update fires on every Lenis scroll, so the pinned/scrubbed
+  // sections move on the same frame as the scroll position (a second rAF
+  // loop here is what makes pinned content look jittery).
   useEffect(() => {
     if (reducedMotion) return undefined
-    let raf
-    let lenis
     let cancelled = false
-    import('lenis').then(({ default: Lenis }) => {
-      if (cancelled) return
-      lenis = new Lenis({
-        duration: 1.1,
-        smoothWheel: true,
-        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      })
-      const rafLoop = (time) => {
-        lenis.raf(time)
-        raf = requestAnimationFrame(rafLoop)
+    let lenis
+    let gsapRef
+    let ticker
+    let heightWatcher
+
+    Promise.all([import('lenis'), import('gsap'), import('gsap/ScrollTrigger')]).then(
+      ([{ default: Lenis }, { gsap }, { ScrollTrigger }]) => {
+        if (cancelled) return
+        gsap.registerPlugin(ScrollTrigger)
+        gsapRef = gsap
+
+        lenis = new Lenis({
+          duration: 1.1,
+          smoothWheel: true,
+          easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        })
+
+        lenis.on('scroll', ScrollTrigger.update)
+        ticker = (time) => lenis.raf(time * 1000)
+        gsap.ticker.add(ticker)
+        // Let Lenis own the frame clock instead of GSAP chasing a stalled one.
+        gsap.ticker.lagSmoothing(0)
+
+        // Lenis caches the page height (and so its maximum scroll). Content
+        // that arrives later (the lazy map iframe, images, the reveals) makes
+        // the page taller than that cache, which left the last screenful
+        // unreachable until a window resize. Re-measure when the document
+        // height actually changes.
+        heightWatcher = new ResizeObserver(() => lenis.resize())
+        heightWatcher.observe(document.body)
       }
-      raf = requestAnimationFrame(rafLoop)
-    })
+    )
+
     return () => {
       cancelled = true
-      if (raf) cancelAnimationFrame(raf)
+      if (heightWatcher) heightWatcher.disconnect()
       if (lenis) lenis.destroy()
+      if (gsapRef && ticker) {
+        gsapRef.ticker.remove(ticker)
+        gsapRef.ticker.lagSmoothing(500, 33)
+      }
     }
   }, [reducedMotion])
+
 
   // Scoped GSAP choreography: hero entry and the hero→card→gallery pin,
   // the pinned attorney spotlight, and the footer wordmark shift.
@@ -142,11 +169,18 @@ export default function App() {
 
     let ctx
     let cancelled = false
+    let refreshLayout
 
     Promise.all([import('gsap'), import('gsap/ScrollTrigger')]).then(
       ([{ gsap }, { ScrollTrigger }]) => {
         if (cancelled) return
         gsap.registerPlugin(ScrollTrigger)
+
+        // The practice list can change height after load ("See all areas"),
+        // which invalidates the pinned hero's measurements. Recalculate when
+        // it asks so the pin spacer and the sections below stay in sync.
+        refreshLayout = () => ScrollTrigger.refresh()
+        window.addEventListener('practice:refresh', refreshLayout)
 
         ctx = gsap.context(() => {
           // Hero → letterhead card: the stage shrinks and centres while
@@ -155,7 +189,6 @@ export default function App() {
           const stage = document.querySelector('.hero__stage')
           const heroContent = document.querySelector('.hero__content')
           const heroRail = document.querySelector('.hero__rail')
-          const heroRipple = document.querySelector('.ripple')
           const heroCard = document.querySelector('.hero__card')
           const practiceLayer = document.querySelector('.hero__stage > .practice')
 
@@ -171,8 +204,8 @@ export default function App() {
 
             const restore = () => {
               gsap.set(stage, { clearProps: 'width,height,x,y,borderRadius' })
-              gsap.set([heroContent, heroRail, heroRipple, heroCard, practiceLayer], {
-                clearProps: 'opacity,visibility',
+              gsap.set([heroContent, heroRail, heroCard, practiceLayer], {
+                clearProps: 'opacity,visibility,transform',
               })
               stage.classList.remove('is-revealed')
             }
@@ -200,7 +233,17 @@ export default function App() {
 
             tl.fromTo(
               stage,
-              { width: '100%', height: '100%', x: 0, y: 0, borderRadius: 0 },
+              {
+                // Explicit viewport size, not '100%': the hero section grows
+                // to fit the revealed practice section, and a percentage here
+                // would resolve against that inflated height so the stage
+                // never shrank back after scrolling down and up again.
+                width: () => document.documentElement.clientWidth,
+                height: () => window.innerHeight,
+                x: 0,
+                y: 0,
+                borderRadius: 0,
+              },
               {
                 width: () => cardMetrics().width,
                 height: () => cardMetrics().height,
@@ -214,7 +257,6 @@ export default function App() {
             )
             tl.to(heroContent, { autoAlpha: 0, ease: 'none', duration: 0.2 }, 0)
             tl.to(heroRail, { autoAlpha: 0, ease: 'none', duration: 0.12 }, 0)
-            tl.to(heroRipple, { autoAlpha: 0, ease: 'none', duration: 0.2 }, 0)
             tl.fromTo(
               heroCard,
               { autoAlpha: 0 },
@@ -222,8 +264,14 @@ export default function App() {
               0.3
             )
 
-            // Phase 2: the card opens back out to full screen, revealing
-            // the dark practice section seamlessly below.
+            // Phase 2: the card opens back out to full screen. The letterhead
+            // rides the growth, then the practice section slides up over it
+            // like a page turning. A crossfade left the letterhead ghosted on
+            // top of the practice text, so the hand-off is a solid wipe
+            // instead: the practice is opaque and covers the letterhead as it
+            // rises, so the two are never superimposed.
+            const handoffAt = 1.4
+            const handoffDuration = 0.3
             tl.to(
               stage,
               {
@@ -237,13 +285,16 @@ export default function App() {
               },
               1.0
             )
-            tl.to(heroCard, { autoAlpha: 0, ease: 'none', duration: 0.4 }, 1.0)
             if (practiceLayer) {
               tl.fromTo(
                 practiceLayer,
-                { autoAlpha: 0 },
-                { autoAlpha: 1, ease: 'none', duration: 0.5 },
-                1.1
+                { autoAlpha: 1, y: () => window.innerHeight },
+                {
+                  y: 0,
+                  ease: 'power2.inOut',
+                  duration: handoffDuration,
+                },
+                handoffAt
               )
             }
           }
@@ -271,6 +322,7 @@ export default function App() {
 
     return () => {
       cancelled = true
+      if (refreshLayout) window.removeEventListener('practice:refresh', refreshLayout)
       if (ctx) ctx.revert()
     }
   }, [stageReady, reducedMotion])
@@ -307,7 +359,7 @@ export default function App() {
   }, [reducedMotion, loaderDone])
 
   return (
-    <>
+    <BriefProvider>
       <Loader
         loaded={assetsReady}
         reducedMotion={reducedMotion}
@@ -323,6 +375,7 @@ export default function App() {
       </main>
       <Footer />
       {loaderDone && <PreviewBadge />}
-    </>
+      {loaderDone && <BriefDock />}
+    </BriefProvider>
   )
 }
